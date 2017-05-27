@@ -1,19 +1,22 @@
 Summary:	Evaluation of certain two-body molecular integrals over Cartesian Gaussian functions
 Summary(pl.UTF-8):	Obliczanie całek dwuelementowych cząsteczek po kartezjańskich funkcjach Gaussa
-Name:		libint
-Version:	1.2.1
+Name:		libint2
+Version:	2.3.1
 Release:	1
 License:	GPL v3+
 Group:		Libraries
 #Source0Download: https://github.com/evaleev/libint/releases
-Source0:	https://github.com/evaleev/libint/archive/release-1-2-1/%{name}-%{version}.tar.gz
-# Source0-md5:	e34f4a677241bde114dc5282a802a067
-Patch0:		%{name}-link.patch
+Source0:	https://github.com/evaleev/libint/archive/v%{version}/libint-%{version}.tar.gz
+# Source0-md5:	34adc4c971372a51b13bb7fd257b7c68
+Patch0:		%{name}-verbose.patch
 URL:		http://libint.valeyev.net/
-BuildRequires:	autoconf >= 2.52
+BuildRequires:	autoconf >= 2.68
 BuildRequires:	automake
-BuildRequires:	libstdc++-devel >= 3.0
-BuildRequires:	libtool >= 2:1.5
+BuildRequires:	boost-devel
+BuildRequires:	eigen3
+BuildRequires:	gmp-c++-devel
+BuildRequires:	libstdc++-devel >= 6:4.7
+BuildRequires:	libtool >= 2:2
 BuildRequires:	sed >= 4.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -47,7 +50,7 @@ Summary:	Header files for libint library
 Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki libint
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
-Requires:	libstdc++-devel >= 3.0
+Requires:	libstdc++-devel >= 6:4.7
 
 %description devel
 Header files for libint library.
@@ -68,17 +71,16 @@ Static libint library.
 Statyczna biblioteka libint.
 
 %prep
-%setup -q -n libint-release-1-2-1
+%setup -q -n libint-%{version}
 %patch0 -p1
 
 %build
 %{__libtoolize}
 %{__aclocal} -I lib/autoconf
 %{__autoconf}
+CPPFLAGS="%{rpmcppflags} -I/usr/include/eigen3"
 %configure \
 	--enable-shared
-
-sed -i -e 's/^CFLAGS =.*/CFLAGS = %{rpmcflags}/;s/^CXXFLAGS =.*/CXXFLAGS = %{rpmcxxflags}/' src/lib/MakeVars
 
 %{__make}
 
@@ -86,11 +88,13 @@ sed -i -e 's/^CFLAGS =.*/CFLAGS = %{rpmcflags}/;s/^CXXFLAGS =.*/CXXFLAGS = %{rpm
 rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
-	includedir=$RPM_BUILD_ROOT%{_includedir} \
-	libdir=$RPM_BUILD_ROOT%{_libdir}
+	DESTDIR=$RPM_BUILD_ROOT
 
 # help rpm to find deps
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib*.so*
+
+# obsoleted by pkg-config
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libint2.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -100,28 +104,19 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CHANGES LICENSE README
-%attr(755,root,root) %{_libdir}/libderiv.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libderiv.so.1
-%attr(755,root,root) %{_libdir}/libint.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libint.so.1
-%attr(755,root,root) %{_libdir}/libr12.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libr12.so.1
+%doc CHANGES CITATION LICENSE README.md
+%attr(755,root,root) %{_libdir}/libint2.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libint2.so.2
+%{_datadir}/libint
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libderiv.so
-%attr(755,root,root) %{_libdir}/libint.so
-%attr(755,root,root) %{_libdir}/libr12.so
-%{_libdir}/libderiv.la
-%{_libdir}/libint.la
-%{_libdir}/libr12.la
-%{_includedir}/libderiv
-%{_includedir}/libint
-%{_includedir}/libr12
+%attr(755,root,root) %{_libdir}/libint2.so
+%{_includedir}/libint2
+%{_includedir}/libint2.h
+%{_includedir}/libint2.hpp
+%{_pkgconfigdir}/libint2.pc
 
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/libderiv.a
-%{_libdir}/libint.a
-%{_libdir}/libr12.a
+%{_libdir}/libint2.a

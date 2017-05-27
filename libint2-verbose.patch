@@ -1,0 +1,26 @@
+--- libint-2.3.1/lib/MakeSuffixRules.orig	2017-05-03 15:11:21.000000000 +0200
++++ libint-2.3.1/lib/MakeSuffixRules	2017-05-27 17:23:50.878344283 +0200
+@@ -1,19 +1,19 @@
+ 
+ %.o:: %.c
+ 	$(info CC $@)
+-	@$(CC) $(CPPFLAGS) $(CFLAGS) -c $< $(OUTPUT_OPTION)
++	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< $(OUTPUT_OPTION)
+ 
+ %.o:: %.cc
+ 	$(info CXX $@)
+-	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(OUTPUT_OPTION)
++	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(OUTPUT_OPTION)
+ 
+ %.lo:: %.cc
+ 	$(info CXX $@)
+-	@$(LTCOMP) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(OUTPUT_OPTION)
++	$(LTCOMP) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< $(OUTPUT_OPTION)
+ 
+ %.lo:: %.c
+ 	$(info CC $@)
+-	@$(LTCOMP) $(CC) $(CPPFLAGS) $(CFLAGS) -c $< $(OUTPUT_OPTION)
++	$(LTCOMP) $(CC) $(CPPFLAGS) $(CFLAGS) -c $< $(OUTPUT_OPTION)
+ 
+ ifdef BIBTEX
+ ifdef PDFLATEX
