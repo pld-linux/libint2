@@ -1,0 +1,26 @@
+Enable SOVERSION on shared libraries.
+Upstream fixed this in PRs #231/#331 for CMakeLists.txt.export but
+the pre-generated tarball's top-level CMakeLists.txt still has it
+commented out. All distros use SOVERSION 2.
+
+--- libint-2.13.1/CMakeLists.txt.orig	2025-02-03 00:00:00.000000000 +0100
++++ libint-2.13.1/CMakeLists.txt	2025-02-03 00:00:00.000000000 +0100
+@@ -362,6 +362,8 @@
+     set_target_properties(
+       int-shared
+       PROPERTIES
++        VERSION ${LIBINT_VERSION}
++        SOVERSION 2
+         OUTPUT_NAME "int2"
+         Libint2_VERSION "${LIBINT_VERSION}"
+         Libint2_MAX_AM_ERI "${Libint2_MAX_AM_ERI}"
+@@ -442,7 +444,8 @@
+             set_target_properties(
+               int-cxx-shared
+               PROPERTIES
+-                #SOVERSION ${LIBINT_MAJOR_SOVERSION}
++                VERSION ${LIBINT_VERSION}
++                SOVERSION 2
+                 MACOSX_RPATH ON
+                 OUTPUT_NAME "int2-cxx"
+               )

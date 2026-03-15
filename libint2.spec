@@ -1,23 +1,23 @@
 Summary:	Evaluation of certain two-body molecular integrals over Cartesian Gaussian functions
 Summary(pl.UTF-8):	Obliczanie całek dwuelementowych cząsteczek po kartezjańskich funkcjach Gaussa
 Name:		libint2
-Version:	2.3.1
+Version:	2.13.1
 Release:	1
-License:	GPL v3+
+License:	LGPL v3
 Group:		Libraries
 #Source0Download: https://github.com/evaleev/libint/releases
-Source0:	https://github.com/evaleev/libint/archive/v%{version}/libint-%{version}.tar.gz
-# Source0-md5:	34adc4c971372a51b13bb7fd257b7c68
-Patch0:		%{name}-verbose.patch
+Source0:	https://github.com/evaleev/libint/releases/download/v%{version}/libint-%{version}.tgz
+# Source0-md5:	8484e51e11be0d92682b9858c651e33d
+Patch0:		%{name}-cmake-build-type.patch
+Patch1:		%{name}-destdir.patch
+Patch2:		%{name}-soversion.patch
 URL:		http://libint.valeyev.net/
-BuildRequires:	autoconf >= 2.68
-BuildRequires:	automake
 BuildRequires:	boost-devel
+BuildRequires:	cmake >= 3.16
 BuildRequires:	eigen3
-BuildRequires:	gmp-c++-devel
 BuildRequires:	libstdc++-devel >= 6:4.7
-BuildRequires:	libtool >= 2:2
-BuildRequires:	sed >= 4.0
+BuildRequires:	ninja
+BuildRequires:	rpmbuild(macros) >= 1.605
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -73,28 +73,24 @@ Statyczna biblioteka libint.
 %prep
 %setup -q -n libint-%{version}
 %patch -P0 -p1
+%patch -P1 -p1
+%patch -P2 -p1
 
 %build
-%{__libtoolize}
-%{__aclocal} -I lib/autoconf
-%{__autoconf}
-CPPFLAGS="%{rpmcppflags} -I/usr/include/eigen3"
-%configure \
-	--enable-shared
+%cmake -B build \
+	-G Ninja \
+	-DBUILD_SHARED_LIBS=ON \
+	-DLIBINT2_BUILD_SHARED_AND_STATIC_LIBS=ON
 
-%{__make}
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
+%ninja_install -C build
 
-# help rpm to find deps
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/lib*.so*
-
-# obsoleted by pkg-config
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/libint2.la
+# strip debug info from static library to avoid OOM during debuginfo extraction
+%{__strip} -g $RPM_BUILD_ROOT%{_libdir}/libint2.a
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -104,7 +100,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc CHANGES CITATION LICENSE README.md
+%doc CITATION LICENSE README.md
 %attr(755,root,root) %{_libdir}/libint2.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libint2.so.2
 %{_datadir}/libint
@@ -115,7 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/libint2
 %{_includedir}/libint2.h
 %{_includedir}/libint2.hpp
-%{_pkgconfigdir}/libint2.pc
+%{_libdir}/cmake/libint2
 
 %files static
 %defattr(644,root,root,755)

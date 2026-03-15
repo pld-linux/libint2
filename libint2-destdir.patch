@@ -1,0 +1,28 @@
+--- libint-2.13.1/CMakeLists.txt.orig	2026-03-15 03:05:28.663662645 +0100
++++ libint-2.13.1/CMakeLists.txt	2026-03-15 03:05:28.665253823 +0100
+@@ -122,7 +122,7 @@
+         CACHE PATH "LIBINT2 LIB install directory")
+ set(LIBINT2_INSTALL_DATADIR "share/libint/${LIBINT_VERSION}"
+         CACHE PATH "LIBINT2 DATA install directory")
+-set(LIBINT2_INSTALL_CMAKEDIR "lib/cmake/libint2"
++set(LIBINT2_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/libint2"
+         CACHE PATH "LIBINT2 CMAKE install directory")
+ 
+ 
+@@ -785,9 +785,15 @@
+ install(CODE "
+   set(LIBINT_VERSION \"${LIBINT_VERSION}\")
+   set(LIBINT_DATADIR_ABSOLUTE \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/libint/${LIBINT_VERSION}\")
++  set(_dest_dir \"\$ENV{DESTDIR}\")
++  if(IS_ABSOLUTE \"${LIBINT2_INSTALL_INCLUDEDIR}\")
++    set(_inc_dir \"\${_dest_dir}${LIBINT2_INSTALL_INCLUDEDIR}\")
++  else()
++    set(_inc_dir \"\${_dest_dir}\${CMAKE_INSTALL_PREFIX}/${LIBINT2_INSTALL_INCLUDEDIR}\")
++  endif()
+   configure_file(
+     \"${PROJECT_SOURCE_DIR}/include/libint2/basis.h.in\"
+-    \"\${CMAKE_INSTALL_PREFIX}/${LIBINT2_INSTALL_INCLUDEDIR}/libint2/basis.h\"
++    \"\${_inc_dir}/libint2/basis.h\"
+     @ONLY)
+ ")
+ 
